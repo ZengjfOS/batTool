@@ -21,31 +21,35 @@ set "disverity_con="
 set "push_con="
 set "flash_uk_con="
 set "flash_all_con="
+set "flash_all_no_erase_con="
 set "apk_con="
 set "test_con="
 
 set /P command=%~n0 $:
-if "%command%" == ""            goto :reCMD
+if "%command%" == ""                            goto :reCMD
 
 echo -^>Your CMD is: %command%
-if "%command%" == "exit"        goto :exit
+if "%command%" == "exit"                        goto :exit
 
-if "%command%" == "1"           set "disverity_con=y"
-if "%command%" == "disverity"   set "disverity_con=y"
+if "%command%" == "1"                           set "disverity_con=y"
+if "%command%" == "disverity"                   set "disverity_con=y"
 
-if "%command%" == "2"           set "push_con=y"
-if "%command%" == "push"        set "push_con=y"
+if "%command%" == "2"                           set "push_con=y"
+if "%command%" == "push"                        set "push_con=y"
 
-if "%command%" == "3"           set "flash_uk_con=y"
-if "%command%" == "flash uk"    set "flash_uk_con=y"
+if "%command%" == "3"                           set "flash_uk_con=y"
+if "%command%" == "flash uk"                    set "flash_uk_con=y"
 
-if "%command%" == "4"           set "flash_all_con=y"
-if "%command%" == "flash all"   set "flash_all_con=y"
+if "%command%" == "4"                           set "flash_all_con=y"
+if "%command%" == "flash all"                   set "flash_all_con=y"
 
-if "%command%" == "5"           set "apk_con=y"
-if "%command%" == "apk"         set "apk_con=y"
+if "%command%" == "5"                           set "flash_all_no_erase_con=y"
+if "%command%" == "flash all no erase"          set "flash_all_no_erase_con=y"
 
-if "%command%" == "test"        set "test_con=y"
+if "%command%" == "6"                           set "apk_con=y"
+if "%command%" == "apk"                         set "apk_con=y"
+
+if "%command%" == "test"                        set "test_con=y"
 
 if defined disverity_con (
     set "workDir=%curDir%"
@@ -54,6 +58,8 @@ if defined disverity_con (
 ) else if defined flash_uk_con (
     set "workDir=%curDir%\flash"
 ) else if defined flash_all_con (
+    set "workDir=%curDir%\flash"
+) else if defined flash_all_no_erase_con (
     set "workDir=%curDir%\flash"
 ) else if defined apk_con (
     set "workDir=%curDir%\apk"
@@ -77,6 +83,8 @@ if defined disverity_con (
     call:flash_uk
 ) else if defined flash_all_con (
     call:flash_all
+) else if defined flash_all_no_erase_con (
+    call:flash_all_on_erase
 ) else if defined apk_con (
     call:apk
 ) else if defined test_con (
@@ -144,6 +152,11 @@ goto:eof
 uuu.exe uuu-android-mx8qm-mek-emmc.lst
 goto:eof
 
+:: flash all img to eMMC with no erase data partition
+:flash_all_on_erase
+uuu.exe uuu-android-mx8qm-mek-emmc-no-erase.lst
+goto:eof
+
 
 :: install apk to Android
 :apk
@@ -179,8 +192,9 @@ echo     1. 'disverity' to disable verity Android P
 echo     2. 'push' to push file to Android P
 echo     3. 'flash uk' to flash uboot/kernel to board
 echo     4. 'flash all' to flash all file to board
-echo     5. 'apk' to install apk to board
-echo     6. Enter anything else to abort.
+echo     5. 'flash all no erase' to flash all file to board with no erase data partition
+echo     6. 'apk' to install apk to board
+echo     7. 'exit' to exit the bat program
 echo =========================================================
 echo.
 goto:eof

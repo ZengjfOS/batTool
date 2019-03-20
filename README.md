@@ -11,8 +11,9 @@ Adan.bat Help Info:
     2. 'push' to push file to Android P
     3. 'flash uk' to flash uboot/kernel to board
     4. 'flash all' to flash all file to board
-    5. 'apk' to install apk to board
-    6. Enter anything else to abort.
+    5. 'flash all no erase' to flash all file to board with no erase data partition
+    6. 'apk' to install apk to board
+    7. 'exit' to exit the bat program
 =========================================================
 ```
 
@@ -24,6 +25,7 @@ Adan.bat Help Info:
 * push: 将fs目录下的文件推送到Android P对应的位置；
 * flash uk(flash uboot/kernel): 在flash目录放入响应的烧录内容，将自动执行烧录uboot/kernel部分；
 * flash all: 在flash目录放入响应的烧录内容，将自动执行烧录，烧录完整的的Android P；
+* flash all no erase: 在flash目录放入响应的烧录内容，将自动执行烧录，烧录完整的的Android P，但不擦除用户数据区；
 * apk: 安装apk目录下的Android应用；
  
 
