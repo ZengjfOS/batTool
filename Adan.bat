@@ -23,12 +23,14 @@ set "flash_uk_con="
 set "flash_all_con="
 set "flash_all_no_erase_con="
 set "apk_con="
+set "root_con="
 set "test_con="
 
 set /P command=%~n0 $:
 if "%command%" == ""                            goto :reCMD
 
 echo -^>Your CMD is: %command%
+if "%command%" == "8"                        goto :exit
 if "%command%" == "exit"                        goto :exit
 
 if "%command%" == "1"                           set "disverity_con=y"
@@ -49,6 +51,9 @@ if "%command%" == "flash all no erase"          set "flash_all_no_erase_con=y"
 if "%command%" == "6"                           set "apk_con=y"
 if "%command%" == "apk"                         set "apk_con=y"
 
+if "%command%" == "7"                           set "root_con=y"
+if "%command%" == "root"                        set "root_con=y"
+
 if "%command%" == "test"                        set "test_con=y"
 
 if defined disverity_con (
@@ -63,6 +68,8 @@ if defined disverity_con (
     set "workDir=%curDir%\flash"
 ) else if defined apk_con (
     set "workDir=%curDir%\apk"
+) else if defined root_con (
+    set "workDir=%curDir%"
 ) else if defined test_con (
     set "workDir=%curDir%\test"
 ) else (
@@ -87,6 +94,8 @@ if defined disverity_con (
     call:flash_all_on_erase
 ) else if defined apk_con (
     call:apk
+) else if defined root_con (
+    call:root
 ) else if defined test_con (
     call:test
 )
@@ -173,6 +182,15 @@ for /R %cd% %%f in (*.*) do (
 goto:eof
 
 
+:: install apk to Android
+:root
+adb root
+adb remount
+adb shell setenforce 0
+adb shell getenforce
+goto:eof
+
+
 :: exit bat file
 :exit
 cd %curDir%
@@ -188,13 +206,14 @@ goto:eof
 :: Custom your help info
 echo =========================================================
 echo %1 Help Info:
-echo     1. 'disverity' to disable verity Android P
+echo     1. 'disverity' to disable verity Android P and auto reboot
 echo     2. 'push' to push file to Android P
 echo     3. 'flash uk' to flash uboot/kernel to board
 echo     4. 'flash all' to flash all file to board
 echo     5. 'flash all no erase' to flash all file to board with no erase data partition
 echo     6. 'apk' to install apk to board
-echo     7. 'exit' to exit the bat program
+echo     7. 'root' to set Android P adb with root/remount/setenforce 0
+echo     8. 'exit' to exit the bat program
 echo =========================================================
 echo.
 goto:eof

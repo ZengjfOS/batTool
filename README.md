@@ -6,14 +6,15 @@
 
 ```
 =========================================================
-Adan.bat Help Info:
-    1. 'disverity' to disable verity Android P
+Adan Help Info:
+    1. 'disverity' to disable verity Android P and auto reboot
     2. 'push' to push file to Android P
     3. 'flash uk' to flash uboot/kernel to board
     4. 'flash all' to flash all file to board
     5. 'flash all no erase' to flash all file to board with no erase data partition
     6. 'apk' to install apk to board
-    7. 'exit' to exit the bat program
+    7. 'root' to set Android P adb with root/remount/setenforce 0
+    8. 'exit' to exit the bat program
 =========================================================
 ```
 
@@ -27,5 +28,6 @@ Adan.bat Help Info:
 * flash all: 在flash目录放入响应的烧录内容，将自动执行烧录，烧录完整的的Android P；
 * flash all no erase: 在flash目录放入响应的烧录内容，将自动执行烧录，烧录完整的的Android P，但不擦除用户数据区；
 * apk: 安装apk目录下的Android应用；
+* root: 让adb工具进入root状态，重新挂载文件系统，关闭SELinux
  
 
