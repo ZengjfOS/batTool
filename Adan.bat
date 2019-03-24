@@ -24,17 +24,19 @@ set "flash_all_con="
 set "flash_all_no_erase_con="
 set "apk_con="
 set "root_con="
+set "copy_con="
 set "test_con="
 
 set /P command=%~n0 $:
 if "%command%" == ""                            goto :reCMD
 
 echo -^>Your CMD is: %command%
-if "%command%" == "8"                        goto :exit
+if "%command%" == "0"                           goto :exit
 if "%command%" == "exit"                        goto :exit
 
 if "%command%" == "1"                           set "disverity_con=y"
 if "%command%" == "disverity"                   set "disverity_con=y"
+if "%command%" == "reboot"                      set "disverity_con=y"
 
 if "%command%" == "2"                           set "push_con=y"
 if "%command%" == "push"                        set "push_con=y"
@@ -46,13 +48,16 @@ if "%command%" == "4"                           set "flash_all_con=y"
 if "%command%" == "flash all"                   set "flash_all_con=y"
 
 if "%command%" == "5"                           set "flash_all_no_erase_con=y"
-if "%command%" == "flash all no erase"          set "flash_all_no_erase_con=y"
+if "%command%" == "flash all diserase"          set "flash_all_no_erase_con=y"
 
 if "%command%" == "6"                           set "apk_con=y"
 if "%command%" == "apk"                         set "apk_con=y"
 
 if "%command%" == "7"                           set "root_con=y"
 if "%command%" == "root"                        set "root_con=y"
+
+if "%command%" == "8"                           set "copy_con=y"
+if "%command%" == "copy"                        set "copy_con=y"
 
 if "%command%" == "test"                        set "test_con=y"
 
@@ -70,6 +75,8 @@ if defined disverity_con (
     set "workDir=%curDir%\apk"
 ) else if defined root_con (
     set "workDir=%curDir%"
+) else if defined copy_con (
+    set "workDir=%curDir%\copy"
 ) else if defined test_con (
     set "workDir=%curDir%\test"
 ) else (
@@ -96,6 +103,8 @@ if defined disverity_con (
     call:apk
 ) else if defined root_con (
     call:root
+) else if defined copy_con (
+    call:copy
 ) else if defined test_con (
     call:test
 )
@@ -201,19 +210,70 @@ pause
 goto:eof
 
 
+:: copy image
+:copy
+if exist "%curDir%\copy\config.txt" (
+    for /F "tokens=1,2 delims==" %%k in (%curDir%/copy/config.txt) do ( 
+        if "baseDir" == "%%k" (
+            set "baseDir=%%l"
+            echo %baseDir%
+
+            cd "%workDir%\flash"
+            echo ----^>start copy flash image
+            call:copy_file flash 
+            echo ^<----end copy flash image
+
+            cd "%workDir%\fs"
+            echo ----^>start copy fs
+            call:copy_file fs
+            echo ^<----end copy fs
+        ) 
+    )
+) else (
+    echo Please check your "copy/config.txt" exist.
+)
+goto:eof
+
+:: copy file system
+:copy_file
+for /R "%cd%" %%f in (*.*) do ( 
+    if not "%%~nf" == "placefile" (
+        set "file=%%f"
+        set relPath=!file:%workDir%\%1\=!
+        echo Relative Path: !relPath!
+        set imgPath=%baseDir%\!relPath!
+        if not ".disable" == "%%~xf" (
+            if exist "!imgPath!" (
+                set winimgPath=%curDir%\%1\!relPath!
+                echo img Path: !imgPath!
+                echo win img Path: !winimgPath!
+                xcopy !imgPath! !winimgPath!* /e /i /y
+                echo xcopy !imgPath! !winimgPath! /e /i /y
+            ) else (
+                echo Warning ** image file not exist **
+            )
+        ) else (
+            echo skip  copy !imgPath!
+        )
+    )
+)
+goto:eof
+
+
 :: help info
 :help
 :: Custom your help info
 echo =========================================================
 echo %1 Help Info:
-echo     1. 'disverity' to disable verity Android P and auto reboot
-echo     2. 'push' to push file to Android P
-echo     3. 'flash uk' to flash uboot/kernel to board
-echo     4. 'flash all' to flash all file to board
-echo     5. 'flash all no erase' to flash all file to board with no erase data partition
-echo     6. 'apk' to install apk to board
-echo     7. 'root' to set Android P adb with root/remount/setenforce 0
-echo     8. 'exit' to exit the bat program
+echo     0. 'exit': exit the bat program
+echo     1. 'disverity': disable verity Android P and auto reboot
+echo     2. 'push': push file to Android P
+echo     3. 'flash uk': flash uboot/kernel to board
+echo     4. 'flash all': flash all file to board
+echo     5. 'flash all diserase': flash all file to board with no erase data partition
+echo     6. 'apk': install apk to board
+echo     7. 'root': set Android P adb with root/remount/setenforce 0
+echo     8. 'copy': copy Android build out file to flash/fs folder
 echo =========================================================
 echo.
 goto:eof

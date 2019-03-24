@@ -1,8 +1,16 @@
 *.apk
-fs/storage
+fs/*
+!fs/placefile
 flash/*
 !flash/uuu.exe
 !flash/libusb-1.0.dll
 !flash/uuu-android-mx8qm-mek-emmc.lst
 !flash/uuu-android-mx8qm-mek-emmc-part.lst
 !flash/uuu-android-mx8qm-mek-emmc-no-erase.lst
+test/*
+!test/placefile
+copy/fs/*
+!copy/fs/placefile
+copy/flash/*
+!copy/flash/placefile
+
