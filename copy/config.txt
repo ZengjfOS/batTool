@@ -1,1 +1,1 @@
-baseDir=D:\zengjf\SWDev\github\batTool\test
+baseDir=Z:\imx8src\imx8qm_android\p9.0.0.0\out\target\product\mek_8q

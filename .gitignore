@@ -13,4 +13,5 @@ copy/fs/*
 !copy/fs/placefile
 copy/flash/*
 !copy/flash/placefile
-
+pull/*
+!pull/config.txt

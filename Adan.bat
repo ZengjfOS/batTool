@@ -19,6 +19,7 @@ if not exist "help.txt" (
 set "command="
 set "disverity_con="
 set "push_con="
+set "pull_con="
 set "flash_uk_con="
 set "flash_all_con="
 set "flash_all_no_erase_con="
@@ -41,22 +42,25 @@ if "%command%" == "reboot"                      set "disverity_con=y"
 if "%command%" == "2"                           set "push_con=y"
 if "%command%" == "push"                        set "push_con=y"
 
-if "%command%" == "3"                           set "flash_uk_con=y"
+if "%command%" == "3"                           set "pull_con=y"
+if "%command%" == "pull"                        set "pull_con=y"
+
+if "%command%" == "4"                           set "flash_uk_con=y"
 if "%command%" == "flash uk"                    set "flash_uk_con=y"
 
-if "%command%" == "4"                           set "flash_all_con=y"
+if "%command%" == "5"                           set "flash_all_con=y"
 if "%command%" == "flash all"                   set "flash_all_con=y"
 
-if "%command%" == "5"                           set "flash_all_no_erase_con=y"
+if "%command%" == "6"                           set "flash_all_no_erase_con=y"
 if "%command%" == "flash all diserase"          set "flash_all_no_erase_con=y"
 
-if "%command%" == "6"                           set "apk_con=y"
+if "%command%" == "7"                           set "apk_con=y"
 if "%command%" == "apk"                         set "apk_con=y"
 
-if "%command%" == "7"                           set "root_con=y"
+if "%command%" == "8"                           set "root_con=y"
 if "%command%" == "root"                        set "root_con=y"
 
-if "%command%" == "8"                           set "copy_con=y"
+if "%command%" == "9"                           set "copy_con=y"
 if "%command%" == "copy"                        set "copy_con=y"
 
 if "%command%" == "test"                        set "test_con=y"
@@ -65,6 +69,8 @@ if defined disverity_con (
     set "workDir=%curDir%"
 ) else if defined push_con (
     set "workDir=%curDir%\fs"
+) else if defined pull_con (
+    set "workDir=%curDir%\pull"
 ) else if defined flash_uk_con (
     set "workDir=%curDir%\flash"
 ) else if defined flash_all_con (
@@ -93,6 +99,8 @@ if defined disverity_con (
     call:disverity
 ) else if defined push_con (
     call:push
+) else if defined pull_con (
+    call:pull
 ) else if defined flash_uk_con (
     call:flash_uk
 ) else if defined flash_all_con (
@@ -152,9 +160,29 @@ for /R %cd% %%f in (*.*) do (
     if "!winRelPath!" == "placefile" (
         echo Note: Nothing
     ) else (
-        adb shell mkdir -p !LinuxRelPathDir!
-        adb push !winRelPath! !LinuxRelPath!
+        if not ".disable" == "%%~xf" (
+            adb shell mkdir -p !LinuxRelPathDir!
+            adb push !winRelPath! !LinuxRelPath!
+        ) else (
+            echo Note: skip push !winRelPath!
+        )
     )
+)
+goto:eof
+
+:: pull file from Android file system
+:pull
+
+echo %cd%
+
+if exist "config.txt" (
+    echo ----^>start copy flash image
+    for /F %%k in (config.txt) do ( 
+        adb pull %%k .
+    )
+    echo ^<----end copy flash image
+) else (
+    echo Please check your "pull/config.txt" exist.
 )
 goto:eof
 
@@ -185,7 +213,11 @@ for /R %cd% %%f in (*.*) do (
         set "file=%%f"
         set relPath=!file:%workDir%\=!
         echo Relative Path: !relPath!
-        adb install -t !relPath!
+        if not ".disable" == "%%~xf" (
+            adb install -t !relPath!
+        ) else (
+            echo Note: skip !relPath!
+        )
     )
 )
 goto:eof
@@ -197,6 +229,12 @@ adb root
 adb remount
 adb shell setenforce 0
 adb shell getenforce
+
+if exist "root\temp.bat" (
+    echo ----^>enter temp.bat
+    call root\temp.bat
+    echo ^<----exit temp.bat
+)
 goto:eof
 
 
@@ -212,7 +250,7 @@ goto:eof
 
 :: copy image
 :copy
-if exist "%curDir%\copy\config.txt" (
+if exist "config.txt" (
     for /F "tokens=1,2 delims==" %%k in (%curDir%/copy/config.txt) do ( 
         if "baseDir" == "%%k" (
             set "baseDir=%%l"
@@ -253,7 +291,7 @@ for /R "%cd%" %%f in (*.*) do (
                 echo Warning ** image file not exist **
             )
         ) else (
-            echo skip  copy !imgPath!
+            echo Note: skip  copy !imgPath!
         )
     )
 )
@@ -268,12 +306,13 @@ echo %1 Help Info:
 echo     0. 'exit': exit the bat program
 echo     1. 'disverity': disable verity Android P and auto reboot
 echo     2. 'push': push file to Android P
-echo     3. 'flash uk': flash uboot/kernel to board
-echo     4. 'flash all': flash all file to board
-echo     5. 'flash all diserase': flash all file to board with no erase data partition
-echo     6. 'apk': install apk to board
-echo     7. 'root': set Android P adb with root/remount/setenforce 0
-echo     8. 'copy': copy Android build out file to flash/fs folder
+echo     3. 'pull': pull file from Android P
+echo     4. 'flash uk': flash uboot/kernel to board
+echo     5. 'flash all': flash all file to board
+echo     6. 'flash all diserase': flash all file to board with no erase data partition
+echo     7. 'apk': install apk to board
+echo     8. 'root': set Android P adb with root/remount/setenforce 0
+echo     9. 'copy': copy Android build out file to flash/fs folder
 echo =========================================================
 echo.
 goto:eof

@@ -8,14 +8,15 @@
 =========================================================
 Adan Help Info:
     0. 'exit': exit the bat program
-    1. 'disverity'/'reboot': disable verity Android P and auto reboot
+    1. 'disverity': disable verity Android P and auto reboot
     2. 'push': push file to Android P
-    3. 'flash uk': flash uboot/kernel to board
-    4. 'flash all': flash all file to board
-    5. 'flash all no erase': flash all file to board with no erase data partition
-    6. 'apk': install apk to board
-    7. 'root': set Android P adb with root/remount/setenforce 0
-    8. 'copy': copy Android build out file to flash/fs folder
+    3. 'pull': pull file from Android P
+    4. 'flash uk': flash uboot/kernel to board
+    5. 'flash all': flash all file to board
+    6. 'flash all diserase': flash all file to board with no erase data partition
+    7. 'apk': install apk to board
+    8. 'root': set Android P adb with root/remount/setenforce 0
+    9. 'copy': copy Android build out file to flash/fs folder
 =========================================================
 ```
 
@@ -25,6 +26,7 @@ Adan Help Info:
 
 * disverity/reboot: 执行disable-verity，并重启，也可以当reboot用；
 * push: 将fs目录下的文件推送到Android P对应的位置；
+* pull: 拷贝出Android P文件；
 * flash uk(flash uboot/kernel): 在flash目录放入相应的烧录内容，将自动执行烧录uboot/kernel部分；
 * flash all: 在flash目录放入相应的烧录内容，将自动执行烧录，烧录完整的的Android P；
 * flash all no erase: 在flash目录放入相应的烧录内容，将自动执行烧录，烧录完整的的Android P，但不擦除用户数据区；
