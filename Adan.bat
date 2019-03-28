@@ -173,12 +173,14 @@ goto:eof
 :: pull file from Android file system
 :pull
 
-echo %cd%
-
 if exist "config.txt" (
     echo ----^>start copy flash image
     for /F %%k in (config.txt) do ( 
-        adb pull %%k .
+        if not ".disable" == "%%~xk" (
+            adb pull %%k .
+        ) else (
+            echo Note: **skip**  pull %%k
+        )
     )
     echo ^<----end copy flash image
 ) else (
@@ -251,7 +253,7 @@ goto:eof
 :: copy image
 :copy
 if exist "config.txt" (
-    for /F "tokens=1,2 delims==" %%k in (%curDir%/copy/config.txt) do ( 
+    for /F "tokens=1,2 delims==" %%k in (config.txt) do ( 
         if "baseDir" == "%%k" (
             set "baseDir=%%l"
             echo %baseDir%
@@ -272,17 +274,17 @@ if exist "config.txt" (
 )
 goto:eof
 
+
 :: copy file system
 :copy_file
-for /R "%cd%" %%f in (*.*) do ( 
-    if not "%%~nf" == "placefile" (
-        set "file=%%f"
-        set relPath=!file:%workDir%\%1\=!
+if exist "config.txt" (
+    for /F %%l in (config.txt) do ( 
+        set relPath=%%l
         echo Relative Path: !relPath!
-        set imgPath=%baseDir%\!relPath!
-        if not ".disable" == "%%~xf" (
+        set imgPath=%baseDir%\!relPath:/=\!
+        if not ".disable" == "%%~xl" (
             if exist "!imgPath!" (
-                set winimgPath=%curDir%\%1\!relPath!
+                set winimgPath=%curDir%\%1\!relPath:/=\!
                 echo img Path: !imgPath!
                 echo win img Path: !winimgPath!
                 xcopy !imgPath! !winimgPath!* /e /i /y
@@ -291,9 +293,11 @@ for /R "%cd%" %%f in (*.*) do (
                 echo Warning ** image file not exist **
             )
         ) else (
-            echo Note: skip  copy !imgPath!
+            echo Note: **skip**  copy !imgPath!
         )
     )
+) else (
+    echo Please check your "copy/%1/config.txt" exist.
 )
 goto:eof
 
