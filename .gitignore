@@ -7,11 +7,13 @@ flash/*
 !flash/uuu-android-mx8qm-mek-emmc.lst
 !flash/uuu-android-mx8qm-mek-emmc-part.lst
 !flash/uuu-android-mx8qm-mek-emmc-no-erase.lst
+!flash/uuu-u-boot-imx8qm.imx
+!flash/partition-table-28GB.img
 test/*
 !test/placefile
 copy/fs/*
-!copy/fs/placefile
+!copy/fs/config.txt
 copy/flash/*
-!copy/flash/placefile
+!copy/flash/config.txt
 pull/*
 !pull/config.txt

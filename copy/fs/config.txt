@@ -1,0 +1,8 @@
+vendor/lib64/hw/audio.primary.imx8.so.disable
+vendor/lib/hw/audio.primary.imx8.so.disable
+vendor/lib/libbt-vendor.so.disable
+vendor/lib64/libbt-vendor.so.disable
+system/bin/i2cdetect
+system/bin/i2cget
+system/bin/i2cset
+system/bin/i2cdump
