@@ -287,8 +287,8 @@ if exist "config.txt" (
                 set winimgPath=%curDir%\%1\!relPath:/=\!
                 echo img Path: !imgPath!
                 echo win img Path: !winimgPath!
-                xcopy !imgPath! !winimgPath!* /e /i /y
-                echo xcopy !imgPath! !winimgPath! /e /i /y
+                xcopy !imgPath! !winimgPath!* /i /y
+                echo xcopy !imgPath! !winimgPath! /i /y
             ) else (
                 echo Warning ** image file not exist **
             )
