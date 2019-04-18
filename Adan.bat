@@ -174,7 +174,7 @@ goto:eof
 :pull
 
 if exist "config.txt" (
-    echo ----^>start copy flash image
+    echo ----^>start pull file from android
     for /F %%k in (config.txt) do ( 
         if not ".disable" == "%%~xk" (
             adb pull %%k .
@@ -182,7 +182,7 @@ if exist "config.txt" (
             echo Note: **skip**  pull %%k
         )
     )
-    echo ^<----end copy flash image
+    echo ^<----end pull file from android
 ) else (
     echo Please check your "pull/config.txt" exist.
 )
@@ -289,6 +289,11 @@ if exist "config.txt" (
                 echo win img Path: !winimgPath!
                 xcopy !imgPath! !winimgPath!* /i /y
                 echo xcopy !imgPath! !winimgPath! /i /y
+
+                if "%1" == "fs" (
+                    echo auto push file: !winimgPath!
+                    adb push !imgPath! !relPath!
+                )
             ) else (
                 echo Warning ** image file not exist **
             )
