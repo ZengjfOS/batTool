@@ -4,6 +4,9 @@ setlocal enabledelayedexpansion enableextensions
 set curDir=%cd%
 echo current dir:%curDir%
 
+set ADBConnected=0
+call:connected
+
 :whileLoop
 
 if not exist "help.txt" (
@@ -27,6 +30,7 @@ set "apk_con="
 set "root_con="
 set "copy_con="
 set "test_con="
+set "checkADB="
 
 set /P command=%~n0 $:
 if "%command%" == ""                            goto :reCMD
@@ -66,10 +70,13 @@ if "%command%" == "copy"                        set "copy_con=y"
 if "%command%" == "test"                        set "test_con=y"
 
 if defined disverity_con (
+    set "checkADB=y"
     set "workDir=%curDir%"
 ) else if defined push_con (
+    set "checkADB=y"
     set "workDir=%curDir%\fs"
 ) else if defined pull_con (
+    set "checkADB=y"
     set "workDir=%curDir%\pull"
 ) else if defined flash_uk_con (
     set "workDir=%curDir%\flash"
@@ -78,10 +85,13 @@ if defined disverity_con (
 ) else if defined flash_all_no_erase_con (
     set "workDir=%curDir%\flash"
 ) else if defined apk_con (
+    set "checkADB=y"
     set "workDir=%curDir%\apk"
 ) else if defined root_con (
+    set "checkADB=y"
     set "workDir=%curDir%"
 ) else if defined copy_con (
+    set "checkADB=y"
     set "workDir=%curDir%\copy"
 ) else if defined test_con (
     set "workDir=%curDir%\test"
@@ -94,6 +104,12 @@ if defined disverity_con (
 echo %command%'s work dir:%workDir%
 echo --^> Enter execute %command%
 cd %workDir%
+
+if defined checkADB (
+    call:connected
+    if %ADBConnected% == 0 ( echo info: plz check usb connected & goto :reCMD )
+    set "checkADB="
+)
 
 if defined disverity_con (
     call:disverity
@@ -112,6 +128,7 @@ if defined disverity_con (
 ) else if defined root_con (
     call:root
 ) else if defined copy_con (
+    call:root
     call:copy
 ) else if defined test_con (
     call:test
@@ -326,8 +343,19 @@ echo =========================================================
 echo.
 goto:eof
 
+:connected
+set count=0
+for /F "tokens=*" %%i in ('adb devices') do ( set /a count=!count!+1 )
+if /i !count! geq 2 ( set ADBConnected=1 ) else ( set ADBConnected=0 )
+if %ADBConnected% == 1 (
+    echo **ADB Connected**
+) else (
+    echo **ADB NOT Connected**
+)
+goto:eof
 
 :: test command for write this bat file
 :test
 echo test function
 goto:eof
+
