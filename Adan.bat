@@ -31,6 +31,7 @@ set "root_con="
 set "copy_con="
 set "test_con="
 set "checkADB="
+set "ADBConnected=0"
 
 set /P command=%~n0 $:
 if "%command%" == ""                            goto :reCMD
@@ -91,7 +92,6 @@ if defined disverity_con (
     set "checkADB=y"
     set "workDir=%curDir%"
 ) else if defined copy_con (
-    set "checkADB=y"
     set "workDir=%curDir%\copy"
 ) else if defined test_con (
     set "workDir=%curDir%\test"
@@ -105,10 +105,9 @@ echo %command%'s work dir:%workDir%
 echo --^> Enter execute %command%
 cd %workDir%
 
+call:connected
 if defined checkADB (
-    call:connected
-    if %ADBConnected% == 0 ( echo info: plz check usb connected & goto :reCMD )
-    set "checkADB="
+    if %ADBConnected% == 0 ( echo info: plz check ADB connected & goto :reCMD )
 )
 
 if defined disverity_con (
@@ -128,7 +127,7 @@ if defined disverity_con (
 ) else if defined root_con (
     call:root
 ) else if defined copy_con (
-    call:root
+    if %ADBConnected% == 1 ( call:root )
     call:copy
 ) else if defined test_con (
     call:test
@@ -280,6 +279,7 @@ if exist "config.txt" (
             call:copy_file flash 
             echo ^<----end copy flash image
 
+
             cd "%workDir%\fs"
             echo ----^>start copy fs
             call:copy_file fs
@@ -307,10 +307,15 @@ if exist "config.txt" (
                 xcopy !imgPath! !winimgPath!* /i /y
                 echo xcopy !imgPath! !winimgPath! /i /y
 
-                if "%1" == "fs" (
-                    echo auto push file: !winimgPath!
-                    adb push !imgPath! !relPath!
+                if %ADBConnected% == 1 ( 
+                    if "%1" == "fs" (
+                        echo auto push file: !winimgPath!
+                        adb push !imgPath! !relPath!
+                    )
+                ) else (
+                    echo Note: **skip** push file: !winimgPath!
                 )
+
             ) else (
                 echo Warning ** image file not exist **
             )
@@ -343,16 +348,18 @@ echo =========================================================
 echo.
 goto:eof
 
+
 :connected
 set count=0
 for /F "tokens=*" %%i in ('adb devices') do ( set /a count=!count!+1 )
 if /i !count! geq 2 ( set ADBConnected=1 ) else ( set ADBConnected=0 )
 if %ADBConnected% == 1 (
-    echo **ADB Connected**
+    echo **note: ADB Connected**
 ) else (
-    echo **ADB NOT Connected**
+    echo **note: ADB NOT Connected**
 )
 goto:eof
+
 
 :: test command for write this bat file
 :test
