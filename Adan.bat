@@ -117,10 +117,13 @@ if defined disverity_con (
 ) else if defined pull_con (
     call:pull
 ) else if defined flash_uk_con (
+    xcopy ..\tools\uuu-u-boot-imx8qm.imx u-boot-imx8qm-mek-uuu.imx /i /y
     call:flash_uk
 ) else if defined flash_all_con (
+    xcopy ..\tools\uuu-u-boot-imx8qm.imx u-boot-imx8qm-mek-uuu.imx /i /y
     call:flash_all
 ) else if defined flash_all_no_erase_con (
+    xcopy ..\tools\uuu-u-boot-imx8qm.imx u-boot-imx8qm-mek-uuu.imx /i /y
     call:flash_all_on_erase
 ) else if defined apk_con (
     call:apk
@@ -304,7 +307,7 @@ if exist "config.txt" (
                 set winimgPath=%curDir%\%1\!relPath:/=\!
                 echo img Path: !imgPath!
                 echo win img Path: !winimgPath!
-                xcopy !imgPath! !winimgPath!* /i /y
+                xcopy !imgPath! !winimgPath! /i /y
                 echo xcopy !imgPath! !winimgPath! /i /y
 
                 if %ADBConnected% == 1 ( 
