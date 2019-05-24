@@ -6,6 +6,8 @@ echo current dir:%curDir%
 
 set ADBConnected=0
 call:connected
+set xenFlag=0
+echo note: standard mode(standard or xen mode)
 
 :whileLoop
 
@@ -30,6 +32,7 @@ set "apk_con="
 set "root_con="
 set "copy_con="
 set "test_con="
+set "xen_con="
 set "checkADB="
 set "ADBConnected=0"
 
@@ -68,6 +71,9 @@ if "%command%" == "root"                        set "root_con=y"
 if "%command%" == "9"                           set "copy_con=y"
 if "%command%" == "copy"                        set "copy_con=y"
 
+if "%command%" == "10"                          set "xen_con=y"
+if "%command%" == "xen"                         set "xen_con=y"
+
 if "%command%" == "test"                        set "test_con=y"
 
 if defined disverity_con (
@@ -95,6 +101,15 @@ if defined disverity_con (
     set "workDir=%curDir%\copy"
 ) else if defined test_con (
     set "workDir=%curDir%\test"
+) else if defined xen_con (
+    if %xenFlag% == 0 (
+        set "xenFlag=1"
+        echo change to xen mode
+    ) else (
+        set "xenFlag=0"
+        echo change to std mode
+    )
+    goto :reCMD
 ) else (
     echo **Warning: Do't support this command currently**
     echo.
@@ -210,18 +225,30 @@ goto:eof
 
 :: flash uboot/kernel img to eMMC
 :flash_uk
-uuu.exe uuu-android-mx8qm-mek-emmc-part.lst
+if %xenFlag% == 0 (
+    uuu.exe uuu-android-mx8qm-mek-emmc-part.lst
+) else (
+    uuu.exe uuu-android-mx8qm-mek-emmc-part-xen.lst
+)
 goto:eof
 
 
 :: flash all img to eMMC
 :flash_all
-uuu.exe uuu-android-mx8qm-mek-emmc.lst
+if %xenFlag% == 0 (
+    uuu.exe uuu-android-mx8qm-mek-emmc.lst
+) else (
+    uuu.exe uuu-android-mx8qm-mek-emmc-xen.lst
+)
 goto:eof
 
 :: flash all img to eMMC with no erase data partition
 :flash_all_on_erase
-uuu.exe uuu-android-mx8qm-mek-emmc-no-erase.lst
+if %xenFlag% == 0 (
+    uuu.exe uuu-android-mx8qm-mek-emmc-no-erase.lst
+) else (
+    uuu.exe uuu-android-mx8qm-mek-emmc-no-erase-xen.lst
+)
 goto:eof
 
 
@@ -347,6 +374,7 @@ echo     6. 'flash all diserase': flash all file to board with no erase data par
 echo     7. 'apk': install apk to board
 echo     8. 'root': set Android P adb with root/remount/setenforce 0
 echo     9. 'copy': copy Android build out file to flash/fs folder
+echo     10. 'xen': standard(default) or xen mode
 echo =========================================================
 echo.
 goto:eof

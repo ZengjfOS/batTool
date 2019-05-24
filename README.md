@@ -17,6 +17,7 @@ Adan Help Info:
     7. 'apk': install apk to board
     8. 'root': set Android P adb with root/remount/setenforce 0
     9. 'copy': copy Android build out file to flash/fs folder
+    10. 'xen': standard(default) or xen mode
 =========================================================
 ```
 
@@ -33,6 +34,7 @@ Adan Help Info:
 * apk: 安装apk目录下的Android应用；
 * root: 让adb工具进入root状态，重新挂载文件系统，关闭SELinux；
 * copy: 拷贝Android编译输出文件到flash和fs目录，`.disable`后缀的文件将会被忽略拷贝，注意需要设置`copy/config.txt`文件，用来设置Android编译输出Samba路径；
+* xen: 烧录程序是标准程序还是xen程序；
  
 ## 依赖软件及驱动
 
