@@ -5,8 +5,10 @@ set curDir=%cd%
 echo current dir:%curDir%
 
 set ADBConnected=0
+set ADBStatus=unconnected
 call:connected
 set xenFlag=0
+set xenStatus=standard
 echo note: standard mode(standard or xen mode)
 
 :whileLoop
@@ -102,13 +104,15 @@ if defined disverity_con (
 ) else if defined test_con (
     set "workDir=%curDir%\test"
 ) else if defined xen_con (
+    echo current is !xenStatus!^(xenFlag: !xenFlag!^) mode
     if %xenFlag% == 0 (
         set "xenFlag=1"
-        echo change to xen mode
+        set "xenStatus=xen"
     ) else (
         set "xenFlag=0"
-        echo change to std mode
+        set "xenStatus=standard"
     )
+    echo change to !xenStatus!^(xenFlag: !xenFlag!^) mode
     goto :reCMD
 ) else (
     echo **Warning: Do't support this command currently**
@@ -124,6 +128,8 @@ call:connected
 if defined checkADB (
     if %ADBConnected% == 0 ( echo info: plz check ADB connected & goto :reCMD )
 )
+
+echo status: fw type: !xenStatus!, ADB: !ADBStatus!
 
 if defined disverity_con (
     call:disverity
@@ -385,10 +391,11 @@ set count=0
 for /F "tokens=*" %%i in ('adb devices') do ( set /a count=!count!+1 )
 if /i !count! geq 2 ( set ADBConnected=1 ) else ( set ADBConnected=0 )
 if %ADBConnected% == 1 (
-    echo **note: ADB Connected**
+    set "ADBStatus=connected"
 ) else (
-    echo **note: ADB NOT Connected**
+    set "ADBStatus=unconnected"
 )
+echo **note: ADB %ADBStatus%**
 goto:eof
 
 

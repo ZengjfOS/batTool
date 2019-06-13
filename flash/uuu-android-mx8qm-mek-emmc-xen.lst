@@ -1,0 +1,27 @@
+uuu_version 1.2.68 
+SDPS: boot -f u-boot-imx8qm-mek-uuu.imx 
+FB: ucmd setenv fastboot_dev mmc 
+FB: ucmd setenv mmcdev 0 
+FB: ucmd mmc dev 0 
+FB: ucmd mmc dev 0 0 
+FB: ucmd mmc erase 0x2000 0x10 
+FB: ucmd mmc partconf 0 1 1 1 
+FB: flash gpt partition-table-28GB.img 
+FB: ucmd setenv fastboot_dev sata 
+FB: ucmd setenv fastboot_dev mmc 
+FB: flash bootloader_a bootloader-imx8qm-xen.img 
+FB: flash dtbo_a dtbo-imx8qm-xen.img 
+FB: flash boot_a boot.img 
+FB: flash system_a system.img 
+FB: flash vendor_a vendor.img 
+FB: flash vbmeta_a vbmeta-imx8qm-xen.img 
+FB: flash bootloader_b bootloader-imx8qm-xen.img 
+FB: flash dtbo_b dtbo-imx8qm-xen.img 
+FB: flash boot_b boot.img 
+FB: flash system_b system.img 
+FB: flash vendor_b vendor.img 
+FB: flash vbmeta_b vbmeta-imx8qm-xen.img 
+FB[-t 600000]: erase misc
+FB[-t 600000]: erase presistdata
+FB[-t 600000]: erase fbmisc
+FB: done 

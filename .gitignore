@@ -7,6 +7,9 @@ flash/*
 !flash/uuu-android-mx8qm-mek-emmc.lst
 !flash/uuu-android-mx8qm-mek-emmc-part.lst
 !flash/uuu-android-mx8qm-mek-emmc-no-erase.lst
+!flash/uuu-android-mx8qm-mek-emmc-xen.lst
+!flash/uuu-android-mx8qm-mek-emmc-part-xen.lst
+!flash/uuu-android-mx8qm-mek-emmc-no-erase-xen.lst
 !flash/uuu-u-boot-imx8qm.imx
 !flash/partition-table-28GB.img
 test/*
