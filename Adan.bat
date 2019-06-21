@@ -35,6 +35,7 @@ set "root_con="
 set "copy_con="
 set "test_con="
 set "xen_con="
+set "unlock_con="
 set "checkADB="
 set "ADBConnected=0"
 
@@ -76,6 +77,9 @@ if "%command%" == "copy"                        set "copy_con=y"
 if "%command%" == "10"                          set "xen_con=y"
 if "%command%" == "xen"                         set "xen_con=y"
 
+if "%command%" == "11"                          set "unlock_con=y"
+if "%command%" == "unlock"                      set "unlock_con=y"
+
 if "%command%" == "test"                        set "test_con=y"
 
 if defined disverity_con (
@@ -115,6 +119,8 @@ if defined disverity_con (
     echo change to !xenStatus!^(xenFlag: !xenFlag!^) mode
     echo current is !xenStatus!^(xenFlag: !xenFlag!^) mode
     goto :reCMD
+) else if defined unlock_con (
+    set "checkADB=y"
 ) else (
     echo **Warning: Do't support this command currently**
     echo.
@@ -154,6 +160,8 @@ if defined disverity_con (
 ) else if defined copy_con (
     if %ADBConnected% == 1 ( call:root )
     call:copy
+) else if defined unlock_con (
+    call:unlock
 ) else if defined test_con (
     call:test
 )
@@ -382,6 +390,7 @@ echo     7. 'apk': install apk to board
 echo     8. 'root': set Android P adb with root/remount/setenforce 0
 echo     9. 'copy': copy Android build out file to flash/fs folder
 echo     10. 'xen': standard(default) or xen mode
+echo     11. 'unlock': unlock the disable verity in u-boot
 echo =========================================================
 echo.
 goto:eof
@@ -397,6 +406,16 @@ if %ADBConnected% == 1 (
     set "ADBStatus=unconnected"
 )
 echo **note: ADB %ADBStatus%**
+goto:eof
+
+
+:unlock
+echo unlock
+adb reboot bootloader
+echo device is rebooting to u-boot
+echo waiting 10 second max to unlock device
+timeout 10 
+fastboot oem unlock
 goto:eof
 
 
