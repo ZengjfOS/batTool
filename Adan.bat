@@ -104,7 +104,7 @@ if defined disverity_con (
 ) else if defined test_con (
     set "workDir=%curDir%\test"
 ) else if defined xen_con (
-    echo current is !xenStatus!^(xenFlag: !xenFlag!^) mode
+    echo before is !xenStatus!^(xenFlag: !xenFlag!^) mode
     if %xenFlag% == 0 (
         set "xenFlag=1"
         set "xenStatus=xen"
@@ -113,6 +113,7 @@ if defined disverity_con (
         set "xenStatus=standard"
     )
     echo change to !xenStatus!^(xenFlag: !xenFlag!^) mode
+    echo current is !xenStatus!^(xenFlag: !xenFlag!^) mode
     goto :reCMD
 ) else (
     echo **Warning: Do't support this command currently**
