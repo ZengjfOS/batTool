@@ -137,6 +137,10 @@ if defined checkADB (
 )
 
 echo status: fw type: !xenStatus!, ADB: !ADBStatus!
+set /P checkContinue=execute CMD? (y/n): 
+If NOT %checkContinue% == y (
+    goto :reCMD
+) 
 
 if defined disverity_con (
     call:disverity

@@ -21,6 +21,7 @@ FB: flash boot_b boot.img
 FB: flash system_b system.img 
 FB: flash vendor_b vendor.img 
 FB: flash vbmeta_b vbmeta-imx8qm-xen.img 
+# FB[-t 600000]: erase userdata
 FB[-t 600000]: erase misc
 FB[-t 600000]: erase presistdata
 FB[-t 600000]: erase fbmisc
