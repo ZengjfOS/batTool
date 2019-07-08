@@ -7,9 +7,11 @@ echo current dir:%curDir%
 set ADBConnected=0
 set ADBStatus=unconnected
 call:connected
-set xenFlag=0
-set xenStatus=standard
-echo note: standard mode(standard or xen mode)
+::set "xenFlag=0"
+::set "xenStatus=standard"
+set "xenFlag=1"
+set "xenStatus=xen"
+echo note: %xenStatus% mode(standard or xen mode)
 
 :whileLoop
 
@@ -396,6 +398,7 @@ echo     9. 'copy': copy Android build out file to flash/fs folder
 echo     10. 'xen': standard(default) or xen mode
 echo     11. 'unlock': unlock the disable verity in u-boot
 echo =========================================================
+echo status: fw type: !xenStatus!, ADB: !ADBStatus!
 echo.
 goto:eof
 
