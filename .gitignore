@@ -1,0 +1,4 @@
+boot_files/*
+!boot_files/empty
+output/*
+!output/empty

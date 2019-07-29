@@ -1,0 +1,21 @@
+{
+    "settings": {
+        "disk_size": "28 GiB",
+        "disk_alignment": 2097152,
+        "first_partition_offset": 8388608
+    },
+    "partitions": [
+        {
+            "label": "boot",
+            "size": "200 MiB",
+            "guid": "auto",
+            "type_guid": "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+        },
+        {
+            "label": "fs",
+            "grow": "true",
+            "guid": "auto",
+            "type_guid": "linux_fs"
+        }
+    ]
+}
