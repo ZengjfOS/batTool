@@ -2,3 +2,5 @@ boot_files/*
 !boot_files/empty
 output/*
 !output/empty
+u-boot/*
+!u-boot/empty

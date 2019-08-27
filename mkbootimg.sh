@@ -25,3 +25,22 @@ for file in ./boot_files/*; do
 
     fi
 done
+
+
+# start combine for u-boot
+
+UBOOT_BLOCKS=$((8 * 1024))
+BOOTLOADER_IMG=output/bootloader.img
+
+test -e ${BOOTLOADER_IMG} && rm ${BOOTLOADER_IMG}
+sync
+
+dd if=/dev/zero of=${BOOTLOADER_IMG} count=$UBOOT_BLOCKS bs=1024
+
+# gpt
+dd if=output/device-partitions.img of=${BOOTLOADER_IMG}
+# uboot
+dd if=u-boot/imx-boot-imx8qmmek-sd.bin of=${BOOTLOADER_IMG} conv=notrunc seek=32 bs=1K
+
+
+
