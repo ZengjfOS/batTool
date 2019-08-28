@@ -122,7 +122,7 @@ if defined disverity_con (
     echo current is !xenStatus!^(xenFlag: !xenFlag!^) mode
     goto :reCMD
 ) else if defined unlock_con (
-    set "checkADB=y"
+    rem set "checkADB=y"
 ) else (
     echo **Warning: Do't support this command currently**
     echo.

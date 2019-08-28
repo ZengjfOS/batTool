@@ -1,11 +1,11 @@
 uuu_version 1.2.68 
 SDPS: boot -f u-boot-imx8qm-mek-uuu.imx 
-FB: ucmd setenv fastboot_dev mmc 
-FB: ucmd setenv mmcdev 0 
-FB: ucmd mmc dev 0 
-FB: ucmd mmc dev 0 0 
-FB: ucmd mmc erase 0x2000 0x10 
-FB: ucmd mmc partconf 0 1 1 1 
+FB[-t 10000]: ucmd setenv fastboot_dev mmc 
+FB[-t 10000]: ucmd setenv mmcdev 0 
+FB[-t 10000]: ucmd mmc dev 0 
+FB[-t 10000]: ucmd mmc dev 0 0 
+FB[-t 10000]: ucmd mmc erase 0x2000 0x10 
+FB[-t 10000]: ucmd mmc partconf 0 1 1 1 
 FB: flash gpt partition-table-28GB.img 
 FB: ucmd setenv fastboot_dev sata 
 FB: ucmd setenv fastboot_dev mmc 
