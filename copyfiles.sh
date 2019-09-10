@@ -16,8 +16,10 @@ UBOOT_FILES=("imx-boot-imx8qmmek-sd.bin-flash_linux_m4")
 
 help() {
 	echo "USAGE:"
-	echo "    cmd uboot"
-	echo "    cmd kernel"
+	echo "    $0 dts"
+	echo "    $0 uboot"
+	echo "    $0 kernel"
+	echo "    $0 all"
 }
 
 copy_dts() {
@@ -57,6 +59,11 @@ while [ $# -gt 0 ]; do
 		copy_uboot
 		;;
 	"kernel")
+		copy_kernel
+		;;
+	"all")
+		copy_dts
+		copy_uboot
 		copy_kernel
 		;;
 	*)
