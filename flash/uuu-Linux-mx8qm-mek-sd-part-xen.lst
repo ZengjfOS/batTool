@@ -15,6 +15,7 @@ FB[-t 600000]: flash gpt device-partitions.img
 FB: flash -raw2sparse all bootloader-xen.img
 
 FB[-t 600000]: flash boot boot.img
-# FB[-t 600000]: flash -raw2sparse fs fsl-image-qt5-validation-imx-imx8qmmek-20190827062108.rootfs.ext4
+# FB[-t 600000]: flash -raw2sparse fs fsl-image-qt5-validation-imx-imx8qmmek.ext4
+# FB[-t 600000]: flash fs fsl-image-qt5-validation-imx-imx8qmmek.ext4.img
 
 FB: done
