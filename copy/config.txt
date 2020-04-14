@@ -1,1 +1,3 @@
-baseDir=Z:\imx8src\imx8qm_android\p9.0.0.0\out\target\product\mek_8q
+sambaBaseDir=Z:\zengjf\mtk6739_q0_mp1\out\target\product\g2020eir_v1_ga_bf
+flashTargetDir=D:\software\MTK_Tools\image
+fsTargetDir=.\

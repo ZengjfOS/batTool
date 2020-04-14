@@ -7,11 +7,6 @@ echo current dir:%curDir%
 set ADBConnected=0
 set ADBStatus=unconnected
 call:connected
-::set "xenFlag=0"
-::set "xenStatus=standard"
-set "xenFlag=1"
-set "xenStatus=xen"
-echo note: %xenStatus% mode(standard or xen mode)
 
 :whileLoop
 
@@ -29,14 +24,11 @@ set "command="
 set "disverity_con="
 set "push_con="
 set "pull_con="
-set "flash_uk_con="
-set "flash_all_con="
-set "flash_all_no_erase_con="
 set "apk_con="
 set "root_con="
 set "copy_con="
+set "open_con="
 set "test_con="
-set "xen_con="
 set "unlock_con="
 set "checkADB="
 set "ADBConnected=0"
@@ -58,29 +50,20 @@ if "%command%" == "push"                        set "push_con=y"
 if "%command%" == "3"                           set "pull_con=y"
 if "%command%" == "pull"                        set "pull_con=y"
 
-if "%command%" == "4"                           set "flash_uk_con=y"
-if "%command%" == "flash uk"                    set "flash_uk_con=y"
-
-if "%command%" == "5"                           set "flash_all_con=y"
-if "%command%" == "flash all"                   set "flash_all_con=y"
-
-if "%command%" == "6"                           set "flash_all_no_erase_con=y"
-if "%command%" == "flash all diserase"          set "flash_all_no_erase_con=y"
-
-if "%command%" == "7"                           set "apk_con=y"
+if "%command%" == "4"                           set "apk_con=y"
 if "%command%" == "apk"                         set "apk_con=y"
 
-if "%command%" == "8"                           set "root_con=y"
+if "%command%" == "5"                           set "root_con=y"
 if "%command%" == "root"                        set "root_con=y"
 
-if "%command%" == "9"                           set "copy_con=y"
+if "%command%" == "6"                           set "copy_con=y"
 if "%command%" == "copy"                        set "copy_con=y"
 
-if "%command%" == "10"                          set "xen_con=y"
-if "%command%" == "xen"                         set "xen_con=y"
-
-if "%command%" == "11"                          set "unlock_con=y"
+if "%command%" == "7"                           set "unlock_con=y"
 if "%command%" == "unlock"                      set "unlock_con=y"
+
+if "%command%" == "8"                           set "open_con=y"
+if "%command%" == "open"                        set "open_con=y"
 
 if "%command%" == "test"                        set "test_con=y"
 
@@ -93,12 +76,6 @@ if defined disverity_con (
 ) else if defined pull_con (
     set "checkADB=y"
     set "workDir=%curDir%\pull"
-) else if defined flash_uk_con (
-    set "workDir=%curDir%\flash"
-) else if defined flash_all_con (
-    set "workDir=%curDir%\flash"
-) else if defined flash_all_no_erase_con (
-    set "workDir=%curDir%\flash"
 ) else if defined apk_con (
     set "checkADB=y"
     set "workDir=%curDir%\apk"
@@ -106,21 +83,14 @@ if defined disverity_con (
     set "checkADB=y"
     set "workDir=%curDir%"
 ) else if defined copy_con (
+    set "checkADB=n"
     set "workDir=%curDir%\copy"
+) else if defined open_con (
+    set "checkADB=n"
+    set "workDir=%curDir%\open"
 ) else if defined test_con (
+    set "checkADB=n"
     set "workDir=%curDir%\test"
-) else if defined xen_con (
-    echo before is !xenStatus!^(xenFlag: !xenFlag!^) mode
-    if %xenFlag% == 0 (
-        set "xenFlag=1"
-        set "xenStatus=xen"
-    ) else (
-        set "xenFlag=0"
-        set "xenStatus=standard"
-    )
-    echo change to !xenStatus!^(xenFlag: !xenFlag!^) mode
-    echo current is !xenStatus!^(xenFlag: !xenFlag!^) mode
-    goto :reCMD
 ) else if defined unlock_con (
     rem set "checkADB=y"
 ) else (
@@ -134,15 +104,19 @@ echo --^> Enter execute %command%
 cd %workDir%
 
 call:connected
-if defined checkADB (
+if "y" == checkADB (
     if %ADBConnected% == 0 ( echo info: plz check ADB connected & goto :reCMD )
+) else (
+    echo info: skip adb check & goto unCheckADB
 )
 
-echo status: fw type: !xenStatus!, ADB: !ADBStatus!
+echo status: ADB: !ADBStatus!
 set /P checkContinue=execute CMD? (y/n): 
 If NOT %checkContinue% == y (
     goto :reCMD
 ) 
+
+:unCheckADB
 
 if defined disverity_con (
     call:disverity
@@ -150,15 +124,6 @@ if defined disverity_con (
     call:push
 ) else if defined pull_con (
     call:pull
-) else if defined flash_uk_con (
-    xcopy ..\tools\uuu-u-boot-imx8qm.imx u-boot-imx8qm-mek-uuu.imx /i /y
-    call:flash_uk
-) else if defined flash_all_con (
-    xcopy ..\tools\uuu-u-boot-imx8qm.imx u-boot-imx8qm-mek-uuu.imx /i /y
-    call:flash_all
-) else if defined flash_all_no_erase_con (
-    xcopy ..\tools\uuu-u-boot-imx8qm.imx u-boot-imx8qm-mek-uuu.imx /i /y
-    call:flash_all_on_erase
 ) else if defined apk_con (
     call:apk
 ) else if defined root_con (
@@ -168,6 +133,8 @@ if defined disverity_con (
     call:copy
 ) else if defined unlock_con (
     call:unlock
+) else if defined open_con (
+    call:open
 ) else if defined test_con (
     call:test
 )
@@ -244,35 +211,6 @@ if exist "config.txt" (
 goto:eof
 
 
-:: flash uboot/kernel img to eMMC
-:flash_uk
-if %xenFlag% == 0 (
-    uuu.exe uuu-android-mx8qm-mek-emmc-part.lst
-) else (
-    uuu.exe uuu-android-mx8qm-mek-emmc-part-xen.lst
-)
-goto:eof
-
-
-:: flash all img to eMMC
-:flash_all
-if %xenFlag% == 0 (
-    uuu.exe uuu-android-mx8qm-mek-emmc.lst
-) else (
-    uuu.exe uuu-android-mx8qm-mek-emmc-xen.lst
-)
-goto:eof
-
-:: flash all img to eMMC with no erase data partition
-:flash_all_on_erase
-if %xenFlag% == 0 (
-    uuu.exe uuu-android-mx8qm-mek-emmc-no-erase.lst
-) else (
-    uuu.exe uuu-android-mx8qm-mek-emmc-no-erase-xen.lst
-)
-goto:eof
-
-
 :: install apk to Android
 :apk
 for /R %cd% %%f in (*.*) do ( 
@@ -292,7 +230,7 @@ for /R %cd% %%f in (*.*) do (
 goto:eof
 
 
-:: install apk to Android
+:: root Android
 :root
 adb root
 adb remount
@@ -317,26 +255,32 @@ pause
 goto:eof
 
 
-:: copy image
+:: copy image and fs
 :copy
 if exist "config.txt" (
     for /F "tokens=1,2 delims==" %%k in (config.txt) do ( 
-        if "baseDir" == "%%k" (
-            set "baseDir=%%l"
-            echo %baseDir%
-
-            cd "%workDir%\flash"
-            echo ----^>start copy flash image
-            call:copy_file flash 
-            echo ^<----end copy flash image
-
-
-            cd "%workDir%\fs"
-            echo ----^>start copy fs
-            call:copy_file fs
-            echo ^<----end copy fs
-        ) 
+        if "sambaBaseDir" == "%%k" (
+            set "sambaBaseDir=%%l"
+            echo %sambaBaseDir%
+        ) else if "flashTargetDir" == "%%k" (
+            set "flashTargetDir=%%l"
+            echo %flashTargetDir%
+        ) else if "fsTargetDir" == "%%k" (
+            set "fsTargetDir=%%l"
+            echo %fsTargetDir%
+        )
     )
+
+    cd "%workDir%\flash"
+    echo ----^>start copy flash image
+    call:copy_file flash %flashTargetDir%
+    echo ^<----end copy flash image
+
+
+    cd "%workDir%\fs"
+    echo ----^>start copy fs
+    call:copy_file fs %fsTargetDir%
+    echo ^<----end copy fs
 ) else (
     echo Please check your "copy/config.txt" exist.
 )
@@ -349,22 +293,26 @@ if exist "config.txt" (
     for /F %%l in (config.txt) do ( 
         set relPath=%%l
         echo Relative Path: !relPath!
-        set imgPath=%baseDir%\!relPath:/=\!
+        set imgPath=%sambaBaseDir%\!relPath:/=\!
         if not ".disable" == "%%~xl" (
             if exist "!imgPath!" (
-                set winimgPath=%curDir%\%1\!relPath:/=\!
+                if "%1" == "fs" (
+                    set winimgPath=%curDir%\%1\!relPath:/=\!
+                ) else (
+                    set winimgPath=%2\!relPath:/=\!
+                )
                 echo img Path: !imgPath!
                 echo win img Path: !winimgPath!
-                xcopy !imgPath! !winimgPath! /i /y
                 echo xcopy !imgPath! !winimgPath! /i /y
+                echo F | xcopy !imgPath! !winimgPath! /i /y
 
-                if %ADBConnected% == 1 ( 
-                    if "%1" == "fs" (
+                if "%1" == "fs" (
+                    if %ADBConnected% == 1 ( 
                         echo auto push file: !winimgPath!
                         adb push !imgPath! !relPath!
+                    ) else (
+                        echo Note: **skip** push file: !winimgPath!
                     )
-                ) else (
-                    echo Note: **skip** push file: !winimgPath!
                 )
 
             ) else (
@@ -389,16 +337,13 @@ echo     0. 'exit': exit the bat program
 echo     1. 'disverity': disable verity Android P and auto reboot
 echo     2. 'push': push file to Android P
 echo     3. 'pull': pull file from Android P
-echo     4. 'flash uk': flash uboot/kernel to board
-echo     5. 'flash all': flash all file to board
-echo     6. 'flash all diserase': flash all file to board with no erase data partition
-echo     7. 'apk': install apk to board
-echo     8. 'root': set Android P adb with root/remount/setenforce 0
-echo     9. 'copy': copy Android build out file to flash/fs folder
-echo     10. 'xen': standard(default) or xen mode
-echo     11. 'unlock': unlock the disable verity in u-boot
+echo     4. 'apk': install apk to board
+echo     5. 'root': set Android P adb with root/remount/setenforce 0
+echo     6. 'copy': copy Android build out file to flash/fs folder
+echo     7. 'unlock': unlock the disable verity in u-boot
+echo     8. 'open': auto exploer open dir
 echo =========================================================
-echo status: fw type: !xenStatus!, ADB: !ADBStatus!
+echo status: ADB: !ADBStatus!
 echo.
 goto:eof
 
@@ -426,8 +371,43 @@ fastboot oem unlock
 goto:eof
 
 
+:: open dir
+:open
+for /F "tokens=1,2 delims==" %%k in (config.txt) do ( 
+    if "open" == "%%k" (
+        set relPath=%%l
+        echo opening dir: !relPath!
+        if not ".disable" == "%%~xl" (
+            if exist "!relPath!" (
+                rem start "" %%l
+                start "" !relPath!
+                timeout 1 > NUL
+
+            ) else (
+                echo Warning ** open dir not exist **
+            )
+        ) else (
+            echo Note: **skip**  open !relPath!
+        )
+    ) else (
+        set relPath=%%l
+        echo execute: %%k !relPath!
+        if not ".disable" == "%%~xl" (
+            if exist "!relPath!" (
+                rem start %%k !relPath!
+                rem timeout 1 > NUL
+            ) else (
+                echo Warning ** execute dir not exist **
+            )
+        ) else (
+            echo Note: **skip**  execute %%k !relPath!
+        )
+    )
+)
+goto:eof
+
+
 :: test command for write this bat file
 :test
 echo test function
 goto:eof
-
