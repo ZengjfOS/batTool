@@ -20,3 +20,5 @@ copy/flash/*
 !copy/flash/config.txt
 pull/*
 !pull/config.txt
+log/*
+!log/placefile

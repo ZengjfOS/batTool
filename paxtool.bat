@@ -28,6 +28,7 @@ set "apk_con="
 set "root_con="
 set "copy_con="
 set "open_con="
+set "log_con="
 set "test_con="
 set "unlock_con="
 set "checkADB="
@@ -65,6 +66,9 @@ if "%command%" == "unlock"                      set "unlock_con=y"
 if "%command%" == "8"                           set "open_con=y"
 if "%command%" == "open"                        set "open_con=y"
 
+if "%command%" == "9"                           set "log_con=y"
+if "%command%" == "log"                         set "log_con=y"
+
 if "%command%" == "test"                        set "test_con=y"
 
 if defined disverity_con (
@@ -88,6 +92,9 @@ if defined disverity_con (
 ) else if defined open_con (
     set "checkADB=n"
     set "workDir=%curDir%\open"
+) else if defined log_con (
+    set "checkADB=y"
+    set "workDir=%curDir%\log"
 ) else if defined test_con (
     set "checkADB=n"
     set "workDir=%curDir%\test"
@@ -104,7 +111,7 @@ echo --^> Enter execute %command%
 cd %workDir%
 
 call:connected
-if "y" == checkADB (
+if "y" == "%checkADB%" (
     if %ADBConnected% == 0 ( echo info: plz check ADB connected & goto :reCMD )
 ) else (
     echo info: skip adb check & goto unCheckADB
@@ -135,6 +142,8 @@ if defined disverity_con (
     call:unlock
 ) else if defined open_con (
     call:open
+) else if defined log_con (
+    call:log
 ) else if defined test_con (
     call:test
 )
@@ -159,36 +168,41 @@ goto:eof
 :: push file to Android file system
 :push
 adb root
-adb remount
+adb remount > nul
+if %errorlevel% == 0 (
+    echo remount success
 
-for /R %cd% %%f in (*.*) do ( 
-    set "file=%%f"
-    set "fileDir=%%~pf"
-    set winRelPath=!file:%workDir%\=!
-    set winRelPathDir=!fileDir:%workDir:~2%\=!
-    echo Windows Relative Path: !winRelPath!
-    echo Windows Relative Path Dir: !winRelPathDir!
+    for /R %cd% %%f in (*.*) do ( 
+        set "file=%%f"
+        set "fileDir=%%~pf"
+        set winRelPath=!file:%workDir%\=!
+        set winRelPathDir=!fileDir:%workDir:~2%\=!
+        echo Windows Relative Path: !winRelPath!
+        echo Windows Relative Path Dir: !winRelPathDir!
 
-    set "LinuxRelPath=/!winRelPath:\=/!"
-    echo Linux Relative Path: !LinuxRelPath!
-    if not "!winRelPathDir!" == "" (
-        set "LinuxRelPathDir=/!winRelPathDir:\=/!"
-        set "LinuxRelPathDir=!LinuxRelPathDir:~0,-1!"
-    ) else (
-        set "LinuxRelPathDir=/"
-    )
-    echo Linux Relative Path Dir: !LinuxRelPathDir!
-
-    if "!winRelPath!" == "placefile" (
-        echo Note: Nothing
-    ) else (
-        if not ".disable" == "%%~xf" (
-            adb shell mkdir -p !LinuxRelPathDir!
-            adb push !winRelPath! !LinuxRelPath!
+        set "LinuxRelPath=/!winRelPath:\=/!"
+        echo Linux Relative Path: !LinuxRelPath!
+        if not "!winRelPathDir!" == "" (
+            set "LinuxRelPathDir=/!winRelPathDir:\=/!"
+            set "LinuxRelPathDir=!LinuxRelPathDir:~0,-1!"
         ) else (
-            echo Note: skip push !winRelPath!
+            set "LinuxRelPathDir=/"
+        )
+        echo Linux Relative Path Dir: !LinuxRelPathDir!
+
+        if "!winRelPath!" == "placefile" (
+            echo Note: Nothing
+        ) else (
+            if not ".disable" == "%%~xf" (
+                adb shell mkdir -p !LinuxRelPathDir!
+                adb push !winRelPath! !LinuxRelPath!
+            ) else (
+                echo Note: skip push !winRelPath!
+            )
         )
     )
+) else (
+    echo remount failed
 )
 goto:eof
 
@@ -233,14 +247,17 @@ goto:eof
 :: root Android
 :root
 adb root
-adb remount
-adb shell setenforce 0
-adb shell getenforce
+adb remount > nul
+if %errorlevel% == 0 (
+    echo remount success
 
-if exist "root\temp.bat" (
-    echo ----^>enter temp.bat
-    call root\temp.bat
-    echo ^<----exit temp.bat
+    if exist "root\temp.bat" (
+        echo ----^>enter temp.bat
+        call root\temp.bat
+        echo ^<----exit temp.bat
+    )
+) else (
+    echo remount failed
 )
 goto:eof
 
@@ -259,27 +276,43 @@ goto:eof
 :copy
 if exist "config.txt" (
     for /F "tokens=1,2 delims==" %%k in (config.txt) do ( 
+        echo %%k = %%l
         if "sambaBaseDir" == "%%k" (
             set "sambaBaseDir=%%l"
-            echo %sambaBaseDir%
+            echo !sambaBaseDir!
         ) else if "flashTargetDir" == "%%k" (
             set "flashTargetDir=%%l"
-            echo %flashTargetDir%
+            echo !flashTargetDir!
         ) else if "fsTargetDir" == "%%k" (
             set "fsTargetDir=%%l"
-            echo %fsTargetDir%
+            echo !fsTargetDir!
         )
+    )
+
+    if "!sambaBaseDir!" == "" (
+        echo sambaBaseDir is empty
+        goto:eof
+    )
+
+    if "!flashTargetDir!" == "" (
+        echo flashTargetDir is empty
+        goto:eof
+    )
+
+    if "!fsTargetDir!" == "" (
+        echo fsTargetDir is empty
+        goto:eof
     )
 
     cd "%workDir%\flash"
     echo ----^>start copy flash image
-    call:copy_file flash %flashTargetDir%
+    call:copy_file flash !flashTargetDir!
     echo ^<----end copy flash image
 
 
     cd "%workDir%\fs"
     echo ----^>start copy fs
-    call:copy_file fs %fsTargetDir%
+    call:copy_file fs !fsTargetDir!
     echo ^<----end copy fs
 ) else (
     echo Please check your "copy/config.txt" exist.
@@ -322,6 +355,10 @@ if exist "config.txt" (
             echo Note: **skip**  copy !imgPath!
         )
     )
+
+    if %ADBConnected% == 1 ( 
+        adb shell sync
+    )
 ) else (
     echo Please check your "copy/%1/config.txt" exist.
 )
@@ -334,14 +371,15 @@ goto:eof
 echo =========================================================
 echo %1 Help Info:
 echo     0. 'exit': exit the bat program
-echo     1. 'disverity': disable verity Android P and auto reboot
-echo     2. 'push': push file to Android P
-echo     3. 'pull': pull file from Android P
-echo     4. 'apk': install apk to board
-echo     5. 'root': set Android P adb with root/remount/setenforce 0
+echo     1. 'disverity': disable verity Android and auto reboot
+echo     2. 'push': push file to Android
+echo     3. 'pull': pull file from Android
+echo     4. 'apk': install apk to Android
+echo     5. 'root': set Android P adb with root/remount
 echo     6. 'copy': copy Android build out file to flash/fs folder
 echo     7. 'unlock': unlock the disable verity in u-boot
 echo     8. 'open': auto exploer open dir
+echo     9. 'log': auto pull /sdcard/debuglogger to log dir
 echo =========================================================
 echo status: ADB: !ADBStatus!
 echo.
@@ -404,6 +442,12 @@ for /F "tokens=1,2 delims==" %%k in (config.txt) do (
         )
     )
 )
+goto:eof
+
+:: log dir
+:log
+adb shell sync
+adb pull /sdcard/debuglogger .
 goto:eof
 
 

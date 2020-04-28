@@ -1,5 +1,7 @@
 open=D:\software\MTK_Tools\image
 open=D:\zengjf\github\battool\copy\fs
-open=Z:\zengjf\mtk6739_q0_mp1\out\target\product\g2020eir_v1_ga_bf
+open=Z:\mtk6739_q0_mp1\out\target\product\M50
 open=D:\software\mobaXterm\log
 open=D:\zengjf\refs\datasheet
+open=Z:\mtk6739_q0_mp1\kernel-4.9\drivers\misc\mediatek\dws\mt6765
+open=Z:\mtk6739_q0_mp1\vendor\mediatek\proprietary\bootable\bootloader\lk\target\M50\dct\dct
