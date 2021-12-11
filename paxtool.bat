@@ -159,8 +159,13 @@ goto :whileLoop
 
 :: disable verity
 :disverity 
+echo start adb root
 adb root
+echo end adb root
+echo start adb disable-verity
 adb disable-verity
+echo end adb disable-verity
+echo start adb reboot
 adb shell reboot
 goto:eof
 
@@ -404,9 +409,25 @@ echo unlock
 adb reboot bootloader
 echo device is rebooting to u-boot
 echo waiting 10 second max to unlock device
-timeout 10 
-fastboot oem unlock
+::timeout 20 
+fastboot flashing unlock
+echo please reboot by long press the power button!!
+timeout 30
+call:ADB_CONNECTED
+call:disverity
+timeout 10
+call:ADB_CONNECTED
+adb root
+adb remount
 goto:eof
+
+
+:ADB_CONNECTED
+@adb devices | findstr "\<device\>"
+IF ERRORLEVEL 1 goto ADB_CONNECTED
+echo adb connete
+goto:eof
+
 
 
 :: open dir
